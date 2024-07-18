@@ -51,7 +51,7 @@ def top_transaction(transaction: list) -> list:
     return top_transaction
 
 
-def currency_rates() ->list:
+def currency_rates() -> list:
     """Функция выводит курс валют"""
     API_KEY = os.getenv("API_TOKEN")
     url_USD = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base=USD"
@@ -59,23 +59,20 @@ def currency_rates() ->list:
 
     headers = {"apikey": f"{API_KEY}"}
 
-    response_USD = {'success': True, 'timestamp': 1720199764, 'base': 'USD',
-                                               'date': '2024-07-05',
-                                               'rates': {'RUB': 89}}
-    response_EUR = {'success': True, 'timestamp': 1720199764, 'base': 'USD',
-                    'date': '2024-07-05',
-                    'rates': {'RUB': 100}}
+    response_USD = requests.get(url_USD, headers=headers)
+    response_EUR = requests.get(url_EUR, headers=headers)
 
-    #response = requests.get(url_USD, headers=headers)
+    get_USD = round(response_USD.json()["rates"]["RUB"], 2)
+    get_EUR = round(response_EUR.json()["rates"]["RUB"], 2)
     # status_code = response.status_code
 
-    return round(response_USD["rates"]["RUB"]), round(response_EUR["rates"]["RUB"])
-
-#### ОСТАНОВИЛСЯ НА ПОЛУЧЕНИЕ АПИ И СП500
-
+    # {"base": "EUR","date": "2024-07-18","rates": {"RUB": 96.621474},"success": true,"timestamp": 1721291536} # (88.27, 96.53)
+    return get_USD, get_EUR
 
 
-print(currency_rates())
+def
+# print(currency_rates())
+
 # transaction = read_excel_file("../data/operations.xlsx")
 # print(top_transaction(transaction))
 

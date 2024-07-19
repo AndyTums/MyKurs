@@ -1,7 +1,6 @@
 import datetime
 import os
 import json
-import certifi
 import requests
 from dotenv import load_dotenv
 
@@ -11,7 +10,7 @@ load_dotenv()
 
 
 def hello() -> str:
-    """Функция выводит приветствие в зависимости от насточщего времени"""
+    """Функция выводит приветствие в зависимости от настоящего времени"""
     time_now = datetime.datetime.now()
     if 5 < time_now.hour < 12:
         return "Доброе утро"
@@ -71,16 +70,19 @@ def currency_rates() -> list:
         currency_rate.append(dict(Валюта=i, Цена=get_value))
         # status_code = response.status_code
 
-    # {"base": "EUR","date": "2024-07-18","rates": {"RUB": 96.621474},"success": true,"timestamp": 1721291536}
-    # [{'Валюта': 'USD', 'Цена': 87.45}, {'Валюта': 'EUR', 'Цена': 95.22}]
     return currency_rate
 
 
 def cost_promotion() -> list:
+    """Функция получает результаты по API цену акций"""
     with open("../data/user_setings.json", "r") as file:
         reading = json.load(file)["user_stocks"]
-        url = f"https://financialmodelingprep.com/api/v3/stock/list?apikey=6f2HzBpYjOsKrtToEw4ClUylkGcM0YdN"
+
+        API_KEY = os.getenv("API_TOKEN_SP_SECOND")
+
+        url = f"https://financialmodelingprep.com/api/v3/stock/list?apikey={API_KEY}"
         response = requests.get(url)
+
         data = response.json()
         stock_proces = []
         for i in data:
@@ -89,8 +91,7 @@ def cost_promotion() -> list:
                     stock_proces.append(dict(Акция=element, Цена=i["price"]))
         return stock_proces
 
-
-# print(currency_rates())
+print(cost_promotion())
 
 # transaction = read_excel_file("../data/operations.xlsx")
 # print(top_transaction(transaction))

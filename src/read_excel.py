@@ -14,4 +14,4 @@ def read_excel_file(filename: str) -> Any:
 
 
 
-#print(read_excel_file("../data/operations.xlsx"))
+# print(read_excel_file("../data/operations.xlsx"))

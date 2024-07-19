@@ -1,10 +1,11 @@
 import datetime
 import os
-
+import json
+import certifi
 import requests
 from dotenv import load_dotenv
 
-from src.views import read_excel_file
+from src.read_excel import read_excel_file
 
 load_dotenv()
 
@@ -27,8 +28,8 @@ def cards_filter(transaction: list) -> list:
     cards = []
     for key in transaction:
         filters = {"Номер карты": key["Номер карты"],
-                   "Сумма": key["Сумма операции"],
-                   "Кэшбэк": key["Кэшбэк"]}
+                   "Сумма": abs(key["Сумма операции"]),
+                   "Кэшбэк": round(abs(key["Сумма операции"]) / 100, 2)}
         for i, value in key.items():
             if value == None:
                 filters[i] = "Нет информации"
@@ -41,36 +42,54 @@ def top_transaction(transaction: list) -> list:
     top_transaction = []
     for key in transaction:
         filters = {"Дата операции": key["Дата операции"][:10],
-                   "Сумма": key["Сумма операции"],
+                   "Сумма": abs(key["Сумма операции"]),
                    "Категория": key["Категория"],
                    "Описание": key["Описание"]}
         for i, value in key.items():
             if value == None:
                 filters[i] = "Нет информации"
         top_transaction.append(filters)
-    return top_transaction
+    return sorted(top_transaction, key=lambda x: x["Сумма"], reverse=True)[1:6]
 
 
 def currency_rates() -> list:
-    """Функция выводит курс валют"""
+    """Функция выводит курс валют для необходимой валюты из файла"""
+    with open("../data/user_setings.json", "r") as file:
+        reading = json.load(file)["user_currencies"]
     API_KEY = os.getenv("API_TOKEN")
-    url_USD = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base=USD"
-    url_EUR = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base=EUR"
 
-    headers = {"apikey": f"{API_KEY}"}
+    currency_rate = []
 
-    response_USD = requests.get(url_USD, headers=headers)
-    response_EUR = requests.get(url_EUR, headers=headers)
+    for i in reading:
+        url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={i}"
 
-    get_USD = round(response_USD.json()["rates"]["RUB"], 2)
-    get_EUR = round(response_EUR.json()["rates"]["RUB"], 2)
-    # status_code = response.status_code
+        headers = {"apikey": f"{API_KEY}"}
 
-    # {"base": "EUR","date": "2024-07-18","rates": {"RUB": 96.621474},"success": true,"timestamp": 1721291536} # (88.27, 96.53)
-    return get_USD, get_EUR
+        response = requests.get(url, headers=headers)
+
+        get_value = round(response.json()["rates"]["RUB"], 2)
+        currency_rate.append(dict(Валюта=i, Цена=get_value))
+        # status_code = response.status_code
+
+    # {"base": "EUR","date": "2024-07-18","rates": {"RUB": 96.621474},"success": true,"timestamp": 1721291536}
+    # [{'Валюта': 'USD', 'Цена': 87.45}, {'Валюта': 'EUR', 'Цена': 95.22}]
+    return currency_rate
 
 
-def
+def cost_promotion() -> list:
+    with open("../data/user_setings.json", "r") as file:
+        reading = json.load(file)["user_stocks"]
+        url = f"https://financialmodelingprep.com/api/v3/stock/list?apikey=6f2HzBpYjOsKrtToEw4ClUylkGcM0YdN"
+        response = requests.get(url)
+        data = response.json()
+        stock_proces = []
+        for i in data:
+            for element in reading:
+                if i["symbol"] == element:
+                    stock_proces.append(dict(Акция=element, Цена=i["price"]))
+        return stock_proces
+
+
 # print(currency_rates())
 
 # transaction = read_excel_file("../data/operations.xlsx")

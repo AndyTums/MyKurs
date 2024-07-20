@@ -5,7 +5,7 @@ from src.read_excel import read_excel_file
 from src.utils import cards_filter, cost_promotion, currency_rates, hello, top_transaction
 
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('../info.log')
+file_handler = logging.FileHandler('../info.log', "w")
 file_formatter = logging.Formatter('%(asctime)s - %(filename)s - %(levelname)s: %(message)s')
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
@@ -27,11 +27,18 @@ def info_by_date(date: str) -> dict:
         if start_date <= str_time <= date_obj:
             new_list.append(i)
 
+    call_currency_rates = currency_rates()
+    price_rub = currency_rates()[0]["Цена"]  # Отбираем цену рубля
+
+    call_cost_promotion = cost_promotion()  # Переводим цену акций в рубли
+    for key in call_cost_promotion:
+        key["Цена"] = key.get("Цена") * price_rub
+
     answer_dict = {"Приветствие": hello(),
                    "Транзакции": cards_filter(new_list),
                    "Топ-5 операций:": top_transaction(new_list),
-                   "Курс валют:": currency_rates(),
-                   "Стоимость акций:": cost_promotion()}
+                   "Курс валют:": call_currency_rates,
+                   "Стоимость акций:": call_cost_promotion}
     logger.info("Окончили обработку информации страницы Главная в JSON-формат")
     return answer_dict
 

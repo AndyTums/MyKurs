@@ -4,7 +4,7 @@ from typing import Any
 import pandas as pd
 
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('../info.log')
+file_handler = logging.FileHandler('../info.log', "w")
 file_formatter = logging.Formatter('%(asctime)s - %(filename)s - %(levelname)s: %(message)s')
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
@@ -16,7 +16,7 @@ def read_excel_file(filename: str) -> Any:
     logger.info("Начали считывание информации с EXCEL-файла")
     try:
         operations = pd.read_excel(filename)
-        operations = operations.where(pd.notnull(operations), None)
+        operations = operations.where(pd.notnull(operations), operations.fillna("Отсутствует"))
         file_dict = operations.to_dict(orient="records")
         logger.info("Окончили считывание информации с EXCEL-файла")
         return file_dict

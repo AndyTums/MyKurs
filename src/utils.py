@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+from typing import Any
 
 import requests
 from dotenv import load_dotenv
@@ -9,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('../info.log')
+file_handler = logging.FileHandler('../info.log', "w")
 file_formatter = logging.Formatter('%(asctime)s - %(filename)s - %(levelname)s: %(message)s')
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
@@ -34,7 +35,7 @@ def hello() -> str:
         return "Доброй ночи"
 
 
-def cards_filter(transaction: list) -> list:
+def cards_filter(transaction: list) -> str | list[dict[str | Any, str | Any]]:
     """Функция выводит информацию по каждой карте"""
     logger.info("Начали сортировку информации по картам")
     cards = []
@@ -48,6 +49,9 @@ def cards_filter(transaction: list) -> list:
         cards.append(filters)
     logger.info("Окончили сортировку информации по картам")
     return cards
+
+
+print(cards_filter(""))
 
 
 def top_transaction(transaction: list) -> list:
@@ -103,19 +107,11 @@ def cost_promotion() -> list:
         response = requests.get(url)
 
         data = response.json()
-        stock_proces = []
+        stock_prices = []
         logger.info("Фильтруем список согласна необходимых данных")
         for i in data:
             for element in reading:
                 if i["symbol"] == element:
-                    stock_proces.append(dict(Акция=element, Цена=i["price"]))
+                    stock_prices.append(dict(Акция=element, Цена=i["price"]))
         logger.info("Окончили сбор данных цен на АКЦИИ")
-        return stock_proces
-
-# print(cost_promotion())
-
-# transaction = read_excel_file("../data/operations.xlsx")
-# print(top_transaction(transaction))
-
-# transaction = read_excel_file("../data/operations.xlsx")
-# print(cards_filter(transaction))
+        return stock_prices

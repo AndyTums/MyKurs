@@ -1,0 +1,1 @@
+my function error:string indices must be integers, not 'str'. Input: (('Супермаркеты', '31-03-2022 16:43:00'), {})

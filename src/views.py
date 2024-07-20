@@ -1,16 +1,21 @@
 import datetime
-import json
+import logging
 
-import pandas as pd
 from src.read_excel import read_excel_file
-from src.utils import hello, cards_filter, top_transaction, currency_rates, cost_promotion
-from datetime import timedelta
+from src.utils import cards_filter, cost_promotion, currency_rates, hello, top_transaction
+
+logger = logging.getLogger(__name__)
+file_handler = logging.FileHandler('../info.log')
+file_formatter = logging.Formatter('%(asctime)s - %(filename)s - %(levelname)s: %(message)s')
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
+logger.setLevel(logging.DEBUG)
 
 
 def info_by_date(date: str) -> dict:
     """Функция сортирует транзакции за период и выводит словарь:
     Привествие, транзации, топ-5 операция, курс валют, стоимость акций"""
-
+    logger.info("Начали обработку информации страницы Главная в JSON-формат")
     date_obj = datetime.datetime.strptime(date, "%d-%m-%Y %H:%M:%S")  # Форматирует дату по шаблону
     start_date = date_obj.replace(day=1, hour=0, minute=0, second=1)  # Задаем начальное значение фильтра
 
@@ -27,7 +32,7 @@ def info_by_date(date: str) -> dict:
                    "Топ-5 операций:": top_transaction(new_list),
                    "Курс валют:": currency_rates(),
                    "Стоимость акций:": cost_promotion()}
-
+    logger.info("Окончили обработку информации страницы Главная в JSON-формат")
     return answer_dict
 
 # print(info_by_date("20-05-2020 22:20:32"))

@@ -12,7 +12,7 @@ logger.addHandler(file_handler)
 logger.setLevel(logging.DEBUG)
 
 
-def info_by_date(date: str) -> dict:
+def main(date: str) -> dict:
     """Функция сортирует транзакции за период и выводит словарь:
     Привествие, транзации, топ-5 операция, курс валют, стоимость акций"""
     logger.info("Начали обработку информации страницы Главная в JSON-формат")
@@ -42,4 +42,5 @@ def info_by_date(date: str) -> dict:
     logger.info("Окончили обработку информации страницы Главная в JSON-формат")
     return answer_dict
 
-# print(info_by_date("20-05-2020 22:20:32"))
+
+# print(main("20-05-2020 22:20:32"))

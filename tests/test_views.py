@@ -1,4 +1,4 @@
-from src.views import info_by_date
+from src.main import info_by_date
 
 
 def test_views():
